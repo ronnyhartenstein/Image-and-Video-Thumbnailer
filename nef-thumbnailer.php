@@ -7,7 +7,6 @@ proc_nice(20);
 error_reporting(E_ALL);
 $debug = false;
 
-
 $opt = getopt("s:t:");
 // var_dump($opt);
 if (empty($opt['s']) || empty($opt['t']) || isset($opt['h'])) {
@@ -102,7 +101,8 @@ exit;
  */
 
 function notify($message, $subtitle='') {
-  $cmd = './Grunt-notify.app/Contents/MacOS/Grunt -message "'.$message.'"'
+  global $argv;
+  $cmd = dirname($argv[0]).'/Grunt-notify.app/Contents/MacOS/Grunt -message "'.$message.'"'
     . ' -title "NEF-Thumbnailer" -subtitle "'.$subtitle.'"'
     . ' -group "NEF-thumbnailer"';
   exec($cmd);
