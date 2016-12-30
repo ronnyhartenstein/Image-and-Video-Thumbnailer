@@ -3,15 +3,9 @@
 // run in background on Idle
 proc_nice(20);
 
-
-// Logging while testing
+// Logging
 error_reporting(E_ALL);
-$debug = true;
-
-// Loggin in production..
-// error_reporting(E_ALL & ~E_NOTICE);
-// $debug = false;
-
+$debug = false;
 
 
 $opt = getopt("s:t:");
@@ -44,11 +38,15 @@ if (!file_exists($target_root)) {
 /*
  * Scan source
  */
+$successfull = 0;
+$run_message_showed = false;
 
 // find /Users/ronny/Pictures/2016/*  -type f -iname "*.jpg" -or -iname "*.nef" > /tmp/thumbnailer_src.lst
-log_debug("Glob: $source_root/*.{jpg,JPG,NEF}");
 $source_files = array();
-foreach (glob($source_root.'/*.{jpg,JPG,NEF}', GLOB_BRACE) as $source_file) {
+exec("find $source_root -type f -iname \"*.jpg\" -or -iname \"*.nef\"", $source_files); 
+log_debug(count($source_files)." source files found!");
+
+foreach ($source_files as $source_file) {
   log_debug("Source file: $source_file");
   $source_file_wo_root = substr($source_file,strlen($source_root));
   $source_dir = dirname($source_file_wo_root);
@@ -57,7 +55,7 @@ foreach (glob($source_root.'/*.{jpg,JPG,NEF}', GLOB_BRACE) as $source_file) {
   $target_file = $target_root.preg_replace('/\.[a-zA-Z]+$/','.jpg',$source_file_wo_root);
   log_debug("Target file: $target_file");
   if (file_exists($target_file)) {
-    log_info("Target file exists. Skip.");
+    log_debug("Skip '$source_file_wo_root'. Target file exists.");
     continue;
   } 
 
@@ -74,12 +72,15 @@ foreach (glob($source_root.'/*.{jpg,JPG,NEF}', GLOB_BRACE) as $source_file) {
   $source_ext = strtolower(end($tmp));
   log_debug("Source Ext: $source_ext");
   if ($source_ext == 'nef') {
-    $cmd = "dcraw -c -e $source_file | convert - -thumbnail 2048x2048 $target_file";
+    $cmd = "dcraw -c -e ".escapeshellarg($source_file)." | convert - -thumbnail 2048x2048 ".escapeshellarg($target_file);
   } else {
-    $cmd = "convert $source_file -thumbnail 2048x2048 $target_file";
+    $cmd = "convert ".escapeshellarg($source_file)." -thumbnail 2048x2048 ".escapeshellarg($target_file);
   }
   log_debug("Run: $cmd");
-  
+  if (!$run_message_showed) {
+    log_info("Creating new thumbnails..");
+    $run_message_showed = true;
+  }
   $output = array(); 
   $return_val = 0;
   exec($cmd, $output, $return_val);
@@ -88,17 +89,34 @@ foreach (glob($source_root.'/*.{jpg,JPG,NEF}', GLOB_BRACE) as $source_file) {
   if ($return_val > 0) {
     log_warning("Run of '$cmd' returns $return_val\n");
   }
+  $successfull++;
+}
+if ($successfull > 0) {
+  log_info("DONE! Sucessfully converted $successfull images.");
 }
 
+exit;
 
+/*
+ * Helper
+ */
+
+function notify($message, $subtitle='') {
+  $cmd = './Grunt-notify.app/Contents/MacOS/Grunt -message "'.$message.'"'
+    . ' -title "NEF-Thumbnailer" -subtitle "'.$subtitle.'"'
+    . ' -group "NEF-thumbnailer"';
+  exec($cmd);
+}
 
 function log_error($msg) {
   // echo "ERROR: $msg\n";
+  notify($msg, "FEHLER");
   trigger_error($msg, E_USER_ERROR);
 }
 
 function log_warning($msg) {
   // echo "WARN: $msg\n";
+  notify($msg, "WARNUNG");
   trigger_error($msg, E_USER_WARNING);
 }
 
@@ -112,6 +130,7 @@ function log_debug($msg) {
 
 function log_info($msg) {
   if (ini_get('error_reporting') & E_NOTICE) {
+    notify($msg);
     echo "INFO: $msg\n";
   }
 //  trigger_error($msg, E_USER_NOTICE);
