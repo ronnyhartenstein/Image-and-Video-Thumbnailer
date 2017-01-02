@@ -7,16 +7,17 @@ proc_nice(20);
 error_reporting(E_ALL);
 $debug = false;
 
+// Resolve options
 $opt = getopt("s:t:");
 // var_dump($opt);
 if (empty($opt['s']) || empty($opt['t']) || isset($opt['h'])) {
   $script = basename(__FILE__);
   print <<<HELP
-Call: php $script -s '/path/to/foto-archiv' -t '/path/to/nextcloud/foto-thumbs'
+Call: php $script -s '/path/to/foto-archive' -t '/path/to/nextcloud/foto-thumbs'
 Options:
   -h            this help
   -s path/to    Path with source NEF files
-  -t path/to    Target path for thumbnails (especially Nextcloud sync folder)
+  -t path/to    Target path for thumbnails (e.g. Nextcloud sync folder)
 HELP;
   exit;
 }
@@ -33,6 +34,26 @@ $target_root = strip_last_slash($opt['t']);
 if (!file_exists($target_root)) {
   die("ERROR: target doesn't exists or is not a directory! $target_root");
 }
+
+/*
+ * Locking by PID-file, single process
+ */
+$lockfile = '/tmp/nef-thumbnailer.pid';
+if (file_exists($lockfile)) {
+  $otherpid = intval(file_get_contents($lockfile));
+  if ($otherpid > 0) {
+    $output = []; $return_var = '';
+    exec('ps -x |grep '.$otherpid.' | grep -v grep', $output, $return_var);
+    if ($return_var == 0 && count($output) == 1) {
+      log_warning('Other process is still running ('.$otherpid.')');
+      exit;
+    }
+  } else {
+    log_error('Lockfile don\'t contain a valid process id. Please check '.$lockfile);
+    exit;
+  }
+}
+file_put_contents($lockfile, getmypid());
 
 /*
  * Scan source
@@ -80,9 +101,9 @@ foreach ($source_files as $source_file) {
     log_info("Creating new thumbnails..");
     $run_message_showed = true;
   }
-  $output = array(); 
-  $return_val = 0;
-  exec($cmd, $output, $return_val);
+  $output = []; 
+  $return_var = 0;
+  exec($cmd, $output, $return_var);
   //var_dump($output);
   //var_dump($return_val);
   if ($return_val > 0) {
@@ -94,6 +115,7 @@ if ($successfull > 0) {
   log_info("DONE! Sucessfully converted $successfull images.");
 }
 
+unlink($lockfile);
 exit;
 
 /*
