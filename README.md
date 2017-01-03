@@ -1,6 +1,9 @@
 # Auto-NEF-Thumbnailer and Auto-MP4-Shrinker for Nextcloud
 
-Motivation: Don't sync the original BIG files, sync a smaller version of them.
+My Motivation: I have a Nextcloud. I make photos and videos. I don't want to sync this big raw files. 
+I want to have a smaller web-version to share it efficent. It should work automatically on new files.
+It scans a source directory tree, convert it, and store it in a target directory tree - like a mirror.
+Then the Nextcloud Uploader get it and upload it.
 
 ## Installation
 
