@@ -14,7 +14,7 @@ Then the Nextcloud Uploader get it and upload it.
 
 ## NEF thumbnailer
 
-Fetch thumbnail from NEF raw images files. Walks and mirror the tree.
+Fetch thumbnail from NEF raw images files using `dcraw`. Walks and mirror the tree.
 
 ```
 Call: php nef-thumbnailer.php -s '/path/to/foto-archive' -t '/path/to/nextcloud/foto-thumbs'
@@ -24,9 +24,11 @@ Options:
   -t path/to    Target path for thumbnails (e.g. Nextcloud sync folder)
 ```
 
+
+
 ## MP4 Shrinker
 
-Converts FullHD high bitrate videos to HDready low bitrate videos. Walks and mirror the tree.
+Converts FullHD high bitrate videos to HDready low bitrate videos using `ffmpeg` and `ffprobe`. Walks and mirror the tree.
 
 ```
 Call: php mp4-thumbnailer.php -s '/path/to/movies' -t '/path/to/nextcloud/movie-thumbs'
