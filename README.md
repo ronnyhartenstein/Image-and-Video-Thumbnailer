@@ -8,7 +8,7 @@ Then the Nextcloud Uploader get it and upload it.
 ## Installation
 
 0. Clone this repo.  (e.g. in `/Users/you/Image-and-Video-Thumbnailer`)
-1. Install some stuff: `brew install dcraw netpbm ufraw ffmpeg php`
+1. Install some stuff: `brew install dcraw netpbm ufraw ffmpeg php imagemagick`
 2. Run scripts manually
 3. optional: Install as cronjob
 

@@ -64,7 +64,7 @@ $run_message_showed = false;
 
 // find /Users/ronny/Pictures/2016/*  -type f -iname "*.jpg" -or -iname "*.nef" > /tmp/thumbnailer_src.lst
 $source_files = array();
-exec("find $source_root -type f -iname \"*.jpg\" -or -iname \"*.nef\"", $source_files); 
+exec("find ".escapeshellarg($source_root)." -type f -iname \"*.jpg\" -or -iname \"*.nef\"", $source_files); 
 log_debug(count($source_files)." source files found!");
 
 foreach ($source_files as $source_file) {
