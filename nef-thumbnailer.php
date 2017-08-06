@@ -6,10 +6,10 @@ proc_nice(20);
 
 // Logging
 error_reporting(E_ALL);
-$debug = false;
+$debug = true;
 
 // Resolve options
-$opt = getopt("s:t:");
+$opt = getopt("hfs:t:");
 // var_dump($opt);
 if (empty($opt['s']) || empty($opt['t']) || isset($opt['h'])) {
   $script = basename(__FILE__);
@@ -19,6 +19,7 @@ Options:
   -h            this help
   -s path/to    Path with source NEF files
   -t path/to    Target path for thumbnails (e.g. Nextcloud sync folder)
+  -f            Force overwrite
 HELP;
   exit;
 }
@@ -64,7 +65,7 @@ $run_message_showed = false;
 
 // find /Users/ronny/Pictures/2016/*  -type f -iname "*.jpg" -or -iname "*.nef" > /tmp/thumbnailer_src.lst
 $source_files = array();
-exec("find $source_root -type f -iname \"*.jpg\" -or -iname \"*.nef\"", $source_files); 
+exec("find ".escapeshellarg($source_root)." -type f -iname \"*.jpg\" -or -iname \"*.nef\"", $source_files); 
 log_debug(count($source_files)." source files found!");
 
 foreach ($source_files as $source_file) {
@@ -75,7 +76,7 @@ foreach ($source_files as $source_file) {
   
   $target_file = $target_root.preg_replace('/\.[a-zA-Z]+$/','.jpg',$source_file_wo_root);
   log_debug("Target file: $target_file");
-  if (file_exists($target_file)) {
+  if (file_exists($target_file) && !isset($opt['f'])) {
     log_debug("Skip '$source_file_wo_root'. Target file exists.");
     continue;
   } 
@@ -93,9 +94,10 @@ foreach ($source_files as $source_file) {
   $source_ext = strtolower(end($tmp));
   log_debug("Source Ext: $source_ext");
   if ($source_ext == 'nef') {
-    $cmd = "dcraw -c -e ".escapeshellarg($source_file)." | convert - -thumbnail 2048x2048 ".escapeshellarg($target_file);
+    $cmd = "dcraw -c -e ".escapeshellarg($source_file)." | convert - -strip -resize 2048x2048 -quality 85 ".escapeshellarg($target_file);
   } else {
-    $cmd = "convert ".escapeshellarg($source_file)." -thumbnail 2048x2048 ".escapeshellarg($target_file);
+    // http://www.imagemagick.org/Usage/thumbnails/
+    $cmd = "convert ".escapeshellarg($source_file)." -auto-orient -strip -resize 2048x2048 -quality 85 ".escapeshellarg($target_file);
   }
   log_debug("Run: $cmd");
   if (!$run_message_showed) {

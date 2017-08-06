@@ -6,7 +6,7 @@ proc_nice(20);
 
 // Logging
 error_reporting(E_ALL);
-$debug = false;
+$debug = true;
 
 // Resolve options
 $opt = getopt("s:t:f");
