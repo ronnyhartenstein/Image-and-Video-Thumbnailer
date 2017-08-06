@@ -66,7 +66,7 @@ $run_message_showed = false;
 
 // find /Users/ronny/Movies/2016/*  -type f -iname "*.mp4" > /tmp/thumbnailer_src.lst
 $source_files = array();
-exec("find $source_root -type f -iname \"*.mp4\"", $source_files); 
+exec("find ".escapeshellarg($source_root)." -type f -iname \"*.mp4\"", $source_files); 
 log_debug(count($source_files)." source files found!");
 
 foreach ($source_files as $source_file) {

@@ -1,5 +1,10 @@
 <?php
 
+$timezone = ini_get('date.timezone');
+if (empty($timezone)) {
+  date_default_timezone_set('Europe/Berlin');
+}
+
 /*
  * Helper functions
  */
