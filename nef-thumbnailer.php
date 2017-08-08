@@ -6,7 +6,7 @@ proc_nice(20);
 
 // Logging
 error_reporting(E_ALL);
-$debug = true;
+$debug = false;
 
 // Resolve options
 $opt = getopt("hfs:t:");

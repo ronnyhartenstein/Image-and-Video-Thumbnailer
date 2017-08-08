@@ -116,7 +116,11 @@ foreach ($source_files as $source_file) {
   $target_video_size = '';
   if ($source_ext == 'mp4') {
     $target_video_bitrate = '1250k'; // 800k is recommended for DVD (PAL-wide, 1024x576)
-    $ratio = $width / $height;
+    if (!empty($width) && !empty($height)) {
+      $ratio = $width / $height;
+    } else {
+      $ratio = 1280 / 720; // standard ratio today
+    }
     $target_video_size = intval($ratio * 720) . 'x720'; // HD ready!
     if ($width < 720) {
       $target_video_size = intval($ratio * 480) . 'x480'; // even smaller.

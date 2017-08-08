@@ -17,13 +17,13 @@ function notify($message, $subtitle='') {
   exec($cmd);
 }
 
-$logfile_name = dirname($argv[0]).'/'.basename($argv[0],'.php').'_lastrun.log';
+$logfile_name = dirname($argv[0]).'/'.basename($argv[0],'.php').'.log';
 if (file_exists($logfile_name)) {
   unlink($logfile_name);
 }
 function logfile($level, $msg) {
   global $logfile_name;
-  file_put_contents($logfile_name, date('Y-m-d H:i:s')." ${level} ${msg}");
+  file_put_contents($logfile_name, "\n" . date('Y-m-d H:i:s')." ${level} ${msg}", FILE_APPEND);
 }
 
 function log_error($msg) {
