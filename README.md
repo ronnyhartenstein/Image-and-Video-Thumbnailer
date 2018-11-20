@@ -8,41 +8,53 @@ Then the Nextcloud Uploader get it and upload it.
 ## Installation
 
 0. Clone this repo.  (e.g. in `/Users/you/Image-and-Video-Thumbnailer`)
-1. Install some stuff: `brew install dcraw netpbm ufraw ffmpeg php imagemagick`
+1. Docker build
 2. Run scripts manually
 3. optional: Install as cronjob
+
+## Docker build
+
+```
+docker build -t thumbnailer .
+docker run -it --rm \
+    -v "$PWD":/project \
+    -v "/path/to/foto-archive":/mnt/source \
+    -v "/path/to/nextcloud/foto-thumbs":/mnt/target \
+    -w /project thumbnailer \
+    php run thumbnail:nef /mnt/source /mnt/target
+
+docker run -it --rm \
+    --mount 'source=$PWD,target=/project' \
+    --mount 'source=$PWD/testfiles/src,target=/mnt/source' \
+    --mount 'source=$PWD/testfiles/trg,target=/mnt/target' \
+    -w /project thumbnailer \
+    php run thumbnail:nef /mnt/source /mnt/target
+
+docker run -it --rm -v "$PWD":/project -w /project php:7.2-stretch-cli php run
+
+```
+
 
 ## NEF thumbnailer
 
 Fetch thumbnail from NEF raw images files using `dcraw`. Walks and mirror the tree.
 
 ```
-Call: php nef-thumbnailer.php -s '/path/to/foto-archive' -t '/path/to/nextcloud/foto-thumbs'
-Options:
-  -h            this help
-  -s path/to    Path with source NEF files
-  -t path/to    Target path for thumbnails (e.g. Nextcloud sync folder)
+Call: php run thumbnail:nef '/path/to/foto-archive' '/path/to/nextcloud/foto-thumbs'
 ```
-
-
 
 ## MP4 Shrinker
 
 Converts FullHD high bitrate videos to HDready low bitrate videos using `ffmpeg` and `ffprobe`. Walks and mirror the tree.
 
 ```
-Call: php mp4-thumbnailer.php -s '/path/to/movies' -t '/path/to/nextcloud/movie-thumbs'
-Options:
-  -h            this help
-  -s path/to    Path with source video files (MP4)
-  -t path/to    Target path for shrinked video (e.g. Nextcloud sync folder)
-  -f            Force rebuild
+Call: php run thumbnail:mp4 '/path/to/movies' '/path/to/nextcloud/movie-thumbs'
 ```
 
 ## Setup Cronjobs
 ```
-5 * * * * php /Users/you/Image-and-Video-Thumbnailer/nef-thumbnailer.php -s /path/to/foto-archive -t /path/to/nextcloud/foto-thumbs
-15 * * * * php /Users/you/Image-and-Video-Thumbnailer/mp4-thumbnailer.php -s /path/to/movies -t /path/to/nextcloud/movie-thumbs
+5 * * * * php /Users/you/Image-and-Video-Thumbnailer/run thumbnail:nef -s /path/to/foto-archive -t /path/to/nextcloud/foto-thumbs
+15 * * * * php /Users/you/Image-and-Video-Thumbnailer/run thumbnail:mp4 -s /path/to/movies -t /path/to/nextcloud/movie-thumbs
 ```
 
 You'll get nice notifications about the progress :)

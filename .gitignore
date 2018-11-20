@@ -1,2 +1,4 @@
 testfiles/*
 *.log
+vendor
+.idea

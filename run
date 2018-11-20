@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+error_reporting(E_ALL);
+
+$timezone = ini_get('date.timezone');
+if (empty($timezone)) {
+    date_default_timezone_set('Europe/Berlin');
+}
+
+include 'vendor/autoload.php';
+
+/** @var \Monolog\Logger $log */
+$log = include_once 'src/logger.php';
+include_once 'src/helper.php';
+
+use Symfony\Component\Console\Application;
+
+$application = new Application();
+
+$application->add(new \RhFlow\Thumbnailer\MP4Command($log));
+$application->add(new \RhFlow\Thumbnailer\NEFCommand($log));
+
+$application->run();
