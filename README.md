@@ -9,6 +9,7 @@ Then the Nextcloud Uploader get it and upload it.
 
 0. Clone this repo.  (e.g. in `/Users/you/Image-and-Video-Thumbnailer`)
 1. Docker build
+2. Composer install
 2. Run scripts manually
 3. optional: Install as cronjob
 
@@ -38,6 +39,12 @@ Hilfe
 - Docker Volumes: https://docs.docker.com/storage/volumes/#start-a-container-with-a-volume
 - Docker Workdir: https://docs.docker.com/engine/reference/builder/#workdir
 
+## Composer Install
+
+```
+wget https://getcomposer.org/download/1.7.3/composer.phar
+docker run -it --rm -v "$PWD":/project -w /project thumbnailer php composer.phar install
+```
 
 ## NEF thumbnailer
 
