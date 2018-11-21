@@ -31,8 +31,12 @@ docker run -it --rm \
     php run thumbnail:nef /mnt/source /mnt/target
 
 docker run -it --rm -v "$PWD":/project -w /project php:7.2-stretch-cli php run
-
 ```
+
+Hilfe
+- zum PHP-Image: https://hub.docker.com/_/php/
+- Docker Volumes: https://docs.docker.com/storage/volumes/#start-a-container-with-a-volume
+- Docker Workdir: https://docs.docker.com/engine/reference/builder/#workdir
 
 
 ## NEF thumbnailer

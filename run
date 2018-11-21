@@ -18,7 +18,7 @@ use Symfony\Component\Console\Application;
 
 $application = new Application();
 
-$application->add(new \RhFlow\Thumbnailer\MP4Command($log));
-$application->add(new \RhFlow\Thumbnailer\NEFCommand($log));
+$application->add(new \RhFlow\Thumbnailer\MP4Command($log['mp4']));
+$application->add(new \RhFlow\Thumbnailer\NEFCommand($log['nef']));
 
 $application->run();
