@@ -23,7 +23,7 @@ class NEFCommand extends BaseCommand
 
     function shellcommandFindSourceFiles(string $source_root)
     {
-        return "find " . escapeshellarg($source_root) . " -type f -iname \"*.jpg\" -or -iname \"*.nef\"";
+        return "find " . myescapeshellarg($source_root) . " -type f -iname \"*.jpg\" -or -iname \"*.nef\"";
     }
 
     protected function import(string $source_root, string $source_file, string $target_root, bool $force): bool
@@ -53,10 +53,10 @@ class NEFCommand extends BaseCommand
         $source_ext = strtolower(end($tmp));
         $this->log->debug("Source Ext: $source_ext");
         if ($source_ext == 'nef') {
-            $cmd = "dcraw -c -e " . escapeshellarg($source_file) . " | convert - -strip -resize 2048x2048 -quality 85 " . escapeshellarg($target_file);
+            $cmd = "dcraw -c -e " . myescapeshellarg($source_file) . " | convert - -strip -resize 2048x2048 -quality 85 " . myescapeshellarg($target_file);
         } else {
             // http://www.imagemagick.org/Usage/thumbnails/
-            $cmd = "convert " . escapeshellarg($source_file) . " -auto-orient -strip -resize 2048x2048 -quality 85 " . escapeshellarg($target_file);
+            $cmd = "convert " . myescapeshellarg($source_file) . " -auto-orient -strip -resize 2048x2048 -quality 85 " . myescapeshellarg($target_file);
         }
         $this->log->debug("Run: $cmd");
         if (!$this->run_message_showed) {

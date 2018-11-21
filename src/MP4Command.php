@@ -23,7 +23,7 @@ class MP4Command extends BaseCommand
 
     function shellcommandFindSourceFiles(string $source_root)
     {
-        return "find " . escapeshellarg($source_root) . " -type f -iname \"*.mp4\"";
+        return "find " . myescapeshellarg($source_root) . " -type f -iname \"*.mp4\"";
     }
 
     protected function import(string $source_root, string $source_file, string $target_root, bool $force): bool
@@ -60,7 +60,7 @@ class MP4Command extends BaseCommand
 
         $cmd = "ffprobe -v error -show_entries stream=width,height"
             . " -of default=noprint_wrappers=1"
-            . " " . escapeshellarg($source_file);
+            . " " . myescapeshellarg($source_file);
         $output = [];
         $return_var = 0;
         $width = 0;
@@ -91,14 +91,14 @@ class MP4Command extends BaseCommand
 //        $target_audio_bitrate = '96k'; // lowest br with acceptable sound
         $cmd = "ffmpeg -y"
             . " -loglevel error"
-            . " -i " . escapeshellarg($source_file)
+            . " -i " . myescapeshellarg($source_file)
             . " -c:v libx264"
             . " -b:v $target_video_bitrate"
             . " -s $target_video_size"
             . " -pix_fmt yuv420p"
             // ." -c:a libmp3lame"
             // ." -b:a $target_audio_bitrate"
-            . " " . escapeshellarg($target_file);
+            . " " . myescapeshellarg($target_file);
 
         $this->log->info("Process $source_file_wo_root (${width}x${height} -> $target_video_size) ..");
         $this->log->debug("Run: $cmd");
