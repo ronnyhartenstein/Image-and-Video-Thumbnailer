@@ -2,6 +2,7 @@
 <?php
 
 error_reporting(E_ALL);
+setlocale(LC_CTYPE, "en_US.UTF-8");
 
 $timezone = ini_get('date.timezone');
 if (empty($timezone)) {
