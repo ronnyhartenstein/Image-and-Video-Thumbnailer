@@ -17,16 +17,22 @@ class NEFCommand extends BaseCommand
             ->setDescription('Erstellt Thumbnails aus Rohdaten-Bildern.')
             ->addArgument('source', InputArgument::REQUIRED, 'Path with source NEF files')
             ->addArgument('target', InputArgument::REQUIRED, 'Target path for thumbnails (e.g. Nextcloud sync folder)')
-            ->addOption('force', 'f', InputOption::VALUE_NONE)
+            ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force overwrite')
+            ->addOption('dry', 'd', InputOption::VALUE_NONE, 'Dry run')
             ->setHelp('NEF Thumbnail Creator');
     }
 
-    function shellcommandFindSourceFiles(string $source_root)
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
-        return "find " . myescapeshellarg($source_root) . " -type f -iname \"*.jpg\" -or -iname \"*.nef\"";
+        parent::execute($input, $output);
     }
 
-    protected function import(string $source_root, string $source_file, string $target_root, bool $force): bool
+    function shellcommandFindFiles(string $source_root, string $target_root)
+    {
+        return "find " . myescapeshellarg($source_root) . " -type f -iname \"*.jpg\" -or -iname \"*.jped\" -or -iname \"*.nef\"";
+    }
+
+    protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $dry): bool
     {
         $this->log->debug("Source file: $source_file");
         $source_file_wo_root = substr($source_file, strlen($source_root));
@@ -65,7 +71,9 @@ class NEFCommand extends BaseCommand
         }
         $output = [];
         $return_var = 0;
-        exec($cmd, $output, $return_var);
+        if (!$dry) {
+            exec($cmd, $output, $return_var);
+        }
         //var_dump($output);
         //var_dump($return_val);
         if ($return_var > 0) {

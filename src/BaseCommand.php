@@ -39,7 +39,14 @@ abstract class BaseCommand extends Command
         if (!file_exists($target_root)) {
             throw new Exception("ERROR: target doesn't exists or is not a directory! $target_root");
         }
-        $force = $input->getOption('force');
+        $force = $input->hasOption('force') ? $input->getOption('force') : false;
+        if ($force) {
+            $this->log->info("Option 'Force overwrite' given");
+        }
+        $dry = $input->hasOption('dry') ? $input->getOption('dry') : false;
+        if ($dry) {
+            $this->log->info("Option 'Dry run' given");
+        }
 
         /*
          * Locking by PID-file, single process
@@ -55,12 +62,12 @@ abstract class BaseCommand extends Command
         // find /Users/ronny/Pictures/2016/*  -type f -iname "*.jpg" -or -iname "*.nef" > /tmp/thumbnailer_src.lst
         // find /Users/ronny/Movies/2016/*  -type f -iname "*.mp4" > /tmp/thumbnailer_src.lst
         $source_files = array();
-        $cmd = $this->shellcommandFindSourceFiles($source_root);
+        $cmd = $this->shellcommandFindFiles($source_root);
         exec($cmd, $source_files);
         $this->log->debug(count($source_files) . " source files found!");
 
         foreach ($source_files as $source_file) {
-            if ($this->import($source_root, $source_file, $target_root, $force)) {
+            if ($this->import($source_root, $source_file, $target_root, $force, $dry)) {
                 $successfull++;
             }
         }
@@ -98,7 +105,7 @@ abstract class BaseCommand extends Command
         $this->log->pushHandler(new LogOutputHandler(new SymfonyStyle($input, $output), getLogLevel()));
     }
 
-    abstract function shellcommandFindSourceFiles(string $source_root);
+    abstract function shellcommandFindFiles(string $source_root, string $target_root);
 
-    abstract protected function import(string $source_root, string $source_file, string $target_root, bool $force): bool;
+    abstract protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $dry): bool;
 }

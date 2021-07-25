@@ -21,5 +21,6 @@ $application = new Application();
 
 $application->add(new \RhFlow\Thumbnailer\MP4Command($log['mp4']));
 $application->add(new \RhFlow\Thumbnailer\NEFCommand($log['nef']));
+$application->add(new \RhFlow\Thumbnailer\CleanupCommand($log['cleanup']));
 
 $application->run();

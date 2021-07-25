@@ -33,7 +33,11 @@ $log_mp4->pushHandler($app_log_handler);
 $log_nef = new \Monolog\Logger('nef');
 $log_nef->pushHandler($app_log_handler);
 
+$log_cleanup = new \Monolog\Logger('cleanup');
+$log_cleanup->pushHandler($app_log_handler);
+
 return [
     'mp4' => $log_mp4,
-    'nef' => $log_nef
+    'nef' => $log_nef,
+    'cleanup' => $log_cleanup
 ];
