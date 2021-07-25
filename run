@@ -9,11 +9,11 @@ if (empty($timezone)) {
     date_default_timezone_set('Europe/Berlin');
 }
 
-include 'vendor/autoload.php';
+include __DIR__.'/vendor/autoload.php';
 
 /** @var \Monolog\Logger $log */
-$log = include_once 'src/logger.php';
-include_once 'src/helper.php';
+$log = include_once __DIR__.'/src/logger.php';
+include_once __DIR__.'/src/helper.php';
 
 use Symfony\Component\Console\Application;
 

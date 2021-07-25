@@ -2,10 +2,11 @@
 
 namespace RhFlow\Thumbnailer;
 
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use \RuntimeException as Exception;
 
 abstract class BaseCommand extends Command
 {
@@ -62,7 +63,7 @@ abstract class BaseCommand extends Command
         // find /Users/ronny/Pictures/2016/*  -type f -iname "*.jpg" -or -iname "*.nef" > /tmp/thumbnailer_src.lst
         // find /Users/ronny/Movies/2016/*  -type f -iname "*.mp4" > /tmp/thumbnailer_src.lst
         $source_files = array();
-        $cmd = $this->shellcommandFindFiles($source_root);
+        $cmd = $this->shellcommandFindFiles($source_root, $target_root);
         exec($cmd, $source_files);
         $this->log->debug(count($source_files) . " source files found!");
 
