@@ -17,7 +17,7 @@ class MP4Command extends BaseCommand
         $this
             ->setName('thumbnail:mp4')
             ->setDescription('Erstellt Thumbnails aus Videos.')
-            ->addArgument('source', InputArgument::REQUIRED, 'Path with source MP4 files')
+            ->addArgument('source', InputArgument::REQUIRED, 'Path with source MP4/MOV files')
             ->addArgument('target', InputArgument::REQUIRED, 'Target path for shrinked video (e.g. Nextcloud sync folder)')
             ->addOption('force', 'f', InputOption::VALUE_NONE)
             ->setHelp('MP4 Thumbnail Creator');
@@ -30,7 +30,7 @@ class MP4Command extends BaseCommand
 
     function shellcommandFindFiles(string $source_root, string $target_root)
     {
-        return "find " . myescapeshellarg($source_root) . " -type f -iname \"*.mp4\"";
+        return "find " . myescapeshellarg($source_root) . " -type f -iname \"*.mp4\" -or -iname \"*.mov\"";
     }
 
     protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $dry): bool
@@ -79,7 +79,7 @@ class MP4Command extends BaseCommand
         }
         $this->log->debug("Source video format: ${width}x${height}");
 
-        if ($source_ext !== 'mp4') {
+        if ($source_ext !== 'mp4' && $source_ext !== 'mov') {
             $this->log->info("Unsupported format: " . $source_ext);
             return false;
         }

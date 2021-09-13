@@ -17,7 +17,7 @@ class NEFCommand extends BaseCommand
         $this
             ->setName('thumbnail:nef')
             ->setDescription('Erstellt Thumbnails aus Rohdaten-Bildern.')
-            ->addArgument('source', InputArgument::REQUIRED, 'Path with source NEF files')
+            ->addArgument('source', InputArgument::REQUIRED, 'Path with source NEF/CR2 files')
             ->addArgument('target', InputArgument::REQUIRED, 'Target path for thumbnails (e.g. Nextcloud sync folder)')
             ->addOption('force', 'f', InputOption::VALUE_NONE, 'Force overwrite')
             ->addOption('dry', 'd', InputOption::VALUE_NONE, 'Dry run')
@@ -31,7 +31,7 @@ class NEFCommand extends BaseCommand
 
     function shellcommandFindFiles(string $source_root, string $target_root)
     {
-        return "find " . myescapeshellarg($source_root) . " -type f -iname \"*.jpg\" -or -iname \"*.jped\" -or -iname \"*.nef\"";
+        return "find " . myescapeshellarg($source_root) . " -type f -iname \"*.jpg\" -or -iname \"*.jped\" -or -iname \"*.nef\" -or -iname \"*.cr2\"";
     }
 
     protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $dry): bool
@@ -41,7 +41,7 @@ class NEFCommand extends BaseCommand
         $source_dir = dirname($source_file_wo_root);
         $this->log->debug("Source dir: $source_dir");
 
-        $target_file = $target_root . preg_replace('/\.[a-zA-Z]+$/', '.jpg', $source_file_wo_root);
+        $target_file = $target_root . preg_replace('/\.[a-zA-Z0-9]+$/', '.jpg', $source_file_wo_root);
         $this->log->debug("Target file: $target_file");
         if (file_exists($target_file) && !isset($opt['f'])) {
             $this->log->debug("Skip '$source_file_wo_root'. Target file exists.");
@@ -60,7 +60,7 @@ class NEFCommand extends BaseCommand
         $tmp = explode('.', $source_file);
         $source_ext = strtolower(end($tmp));
         $this->log->debug("Source Ext: $source_ext");
-        if ($source_ext == 'nef') {
+        if ($source_ext == 'nef' || $source_ext == 'cr2') {
             $cmd = "dcraw -c -e " . myescapeshellarg($source_file) . " | convert - -strip -resize 2048x2048 -quality 85 " . myescapeshellarg($target_file);
         } else {
             // http://www.imagemagick.org/Usage/thumbnails/
