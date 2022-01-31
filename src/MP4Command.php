@@ -30,7 +30,7 @@ class MP4Command extends BaseCommand
 
     function shellcommandFindFiles(string $source_root, string $target_root)
     {
-        return "find " . myescapeshellarg($source_root) . " -type f -iname \"*.mp4\" -or -iname \"*.mov\"";
+        return 'find ' . myescapeshellarg($source_root) . ' -type f \( -iname "*.mp4" -or -iname "*.mov" \) -not -iname "._*"';
     }
 
     protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $dry): bool
@@ -65,17 +65,32 @@ class MP4Command extends BaseCommand
         $source_ext = strtolower(end($tmp));
         $this->log->debug("Source Ext: $source_ext");
 
-        $cmd = "ffprobe -v error -show_entries stream=width,height"
+        $cmd = "ffprobe -v error -show_entries stream"
             . " -of default=noprint_wrappers=1"
             . " " . myescapeshellarg($source_file);
+        $this->log->debug($cmd);
+        $infos = [];
         $output = [];
         $return_var = 0;
         $width = 0;
         $height = 0;
         exec($cmd, $output, $return_var);
         foreach ($output as $v) {
-            list($kk, $vv) = explode('=', $v);
-            $$kk = $vv; // $width & $height :)
+            if (strpos($v, '=') !== false) {
+                list($kk, $vv) = explode('=', $v);
+                //$this->log->debug($kk.' = '.$vv);
+                $infos[$kk] = $vv; // $width & $height :)
+            }
+        }
+        if (!empty($infos['rotation']) && ($infos['rotation'] == '-90' || $infos['rotation'] == '90')) {
+            $width = $infos['height'];
+            $height = $infos['width'];
+            $this->log->debug("Hochkant Format erkannt");
+            $hochkant = true;
+        } else {
+            $width = $infos['width'];
+            $height = $infos['height'];
+            $hochkant = false;
         }
         $this->log->debug("Source video format: ${width}x${height}");
 
@@ -90,10 +105,19 @@ class MP4Command extends BaseCommand
         } else {
             $ratio = 1280 / 720; // standard ratio today
         }
-        $target_video_size = intval($ratio * 720) . 'x720'; // HD ready!
-        if ($width < 720) {
-            $target_video_size = intval($ratio * 480) . 'x480'; // even smaller.
-            $target_video_bitrate = '800k';
+        $this->log->debug("Ratio: ${ratio}");
+        if ($hochkant) {
+            $target_video_size = '720x' . intval(720 / $ratio); // HD ready!    
+            if ($height < 720) {
+                $target_video_size = '850x'.intval($ratio * 850); // even smaller.
+                $target_video_bitrate = '800k';
+            }
+        } else {
+            $target_video_size = intval($ratio * 720) . 'x720'; // HD ready!
+            if ($width < 720) {
+                $target_video_size = intval($ratio * 480) . 'x480'; // even smaller.
+                $target_video_bitrate = '400k';
+            }
         }
 //        $target_audio_bitrate = '96k'; // lowest br with acceptable sound
         $cmd = "ffmpeg -y"
