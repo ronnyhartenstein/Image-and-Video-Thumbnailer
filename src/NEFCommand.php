@@ -31,7 +31,7 @@ class NEFCommand extends BaseCommand
 
     function shellcommandFindFiles(string $source_root, string $target_root)
     {
-        return "find " . myescapeshellarg($source_root) . " -type f -iname \"*.jpg\" -or -iname \"*.jped\" -or -iname \"*.nef\" -or -iname \"*.cr2\"";
+        return 'find ' . myescapeshellarg($source_root) . ' -type f \( -iname "*.jpg" -or -iname "*.jpeg" -or -iname "*.nef" -or -iname "*.cr2" \) -not -iname "._*"';
     }
 
     protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $dry): bool
