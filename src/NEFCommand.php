@@ -31,10 +31,10 @@ class NEFCommand extends BaseCommand
 
     function shellcommandFindFiles(string $source_root, string $target_root)
     {
-        return 'find ' . myescapeshellarg($source_root) . ' -type f \( -iname "*.jpg" -or -iname "*.jpeg" -or -iname "*.nef" -or -iname "*.cr2" \) -not -iname "._*"';
+        return 'find ' . myescapeshellarg($source_root) . ' -type f \( -iname "*.jpg" -or -iname "*.jpeg" -or -iname "*.nef" -or -iname "*.cr2" -or -iname "*.heic" \) -not -iname "._*"';
     }
 
-    protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $dry): bool
+    protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $force_hochkant, bool $dry): bool
     {
         $this->log->debug("Source file: $source_file");
         $source_file_wo_root = substr($source_file, strlen($source_root));

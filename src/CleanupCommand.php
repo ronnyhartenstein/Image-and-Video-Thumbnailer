@@ -39,7 +39,7 @@ class CleanupCommand extends BaseCommand
     /**
      * .. if they exists in source..
      */
-    protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $dry): bool
+    protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $force_hochkant, bool $dry): bool
     {
         $target_file = $source_file;
         unset ($source_file);

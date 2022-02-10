@@ -20,6 +20,7 @@ class MP4Command extends BaseCommand
             ->addArgument('source', InputArgument::REQUIRED, 'Path with source MP4/MOV files')
             ->addArgument('target', InputArgument::REQUIRED, 'Target path for shrinked video (e.g. Nextcloud sync folder)')
             ->addOption('force', 'f', InputOption::VALUE_NONE)
+            ->addOption('force-hochkant', null, InputOption::VALUE_NONE)
             ->setHelp('MP4 Thumbnail Creator');
     }
 
@@ -33,7 +34,7 @@ class MP4Command extends BaseCommand
         return 'find ' . myescapeshellarg($source_root) . ' -type f \( -iname "*.mp4" -or -iname "*.mov" \) -not -iname "._*"';
     }
 
-    protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $dry): bool
+    protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $force_hochkant, bool $dry): bool
     {
         $this->log->debug("Source file: $source_file");
         $source_file_wo_root = substr($source_file, strlen($source_root));
@@ -46,6 +47,8 @@ class MP4Command extends BaseCommand
             if ($force) {
                 $this->log->debug("Remove '$target_file'.");
                 unlink($target_file);
+            } else if ($force_hochkant) {
+                $this->log->debug("Target file exists, check later. (ob hochkant)");
             } else {
                 $this->log->debug("Skip '$source_file_wo_root'. Target file exists.");
                 return false;
@@ -93,6 +96,16 @@ class MP4Command extends BaseCommand
             $hochkant = false;
         }
         $this->log->debug("Source video format: ${width}x${height}");
+
+        if (file_exists($target_file)) {
+            if ($hochkant && $force_hochkant) {
+                $this->log->debug("Remove '$target_file'.");
+                unlink($target_file);
+            } else {
+                $this->log->debug("Skip '$source_file_wo_root'. Target file exists. (und nicht hochkant)");
+                return false;
+            }
+        }
 
         if ($source_ext !== 'mp4' && $source_ext !== 'mov') {
             $this->log->info("Unsupported format: " . $source_ext);

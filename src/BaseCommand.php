@@ -44,6 +44,10 @@ abstract class BaseCommand extends Command
         if ($force) {
             $this->log->info("Option 'Force overwrite' given");
         }
+        $force_hochkant = $input->hasOption('force-hochkant') ? $input->getOption('force-hochkant') : false;
+        if ($force_hochkant) {
+            $this->log->info("Option 'Force-hochkant overwrite' given");
+        }
         $dry = $input->hasOption('dry') ? $input->getOption('dry') : false;
         if ($dry) {
             $this->log->info("Option 'Dry run' given");
@@ -68,7 +72,7 @@ abstract class BaseCommand extends Command
         $this->log->debug(count($source_files) . " source files found!");
 
         foreach ($source_files as $source_file) {
-            if ($this->import($source_root, $source_file, $target_root, $force, $dry)) {
+            if ($this->import($source_root, $source_file, $target_root, $force, $force_hochkant, $dry)) {
                 $successfull++;
             }
         }
@@ -88,10 +92,10 @@ abstract class BaseCommand extends Command
                 $return_var = '';
                 exec('ps -x |grep ' . $otherpid . ' | grep -v grep', $output, $return_var);
                 if ($return_var == 0 && count($output) == 1) {
-                    throw Exception('Other process is still running (' . $otherpid . ')');
+                    throw new \RuntimeException('Other process is still running (' . $otherpid . ')');
                 }
             } else {
-                throw Exception('Lockfile don\'t contain a valid process id. Please check ' . $this->lockfile);
+                throw new \RuntimeException('Lockfile don\'t contain a valid process id. Please check ' . $this->lockfile);
             }
         }
         file_put_contents($this->lockfile, getmypid());
@@ -108,5 +112,5 @@ abstract class BaseCommand extends Command
 
     abstract function shellcommandFindFiles(string $source_root, string $target_root);
 
-    abstract protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $dry): bool;
+    abstract protected function import(string $source_root, string $source_file, string $target_root, bool $force, bool $force_hochkant, bool $dry): bool;
 }
